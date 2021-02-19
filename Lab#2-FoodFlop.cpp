@@ -1,209 +1,68 @@
 
-#include <iostream>
-#include <stack>
+#include<iostream>
 #include<cstdlib>
-#include <fstream>
+#include<fstream>
+#include<string>
+#include<stack>
+
 using namespace std;
 
-template <class T>
-class Stack
-{
-private:
-   T *stackArray;
-   int stackSize;
-   int top;
-
-public:
-   //Constructor
-   Stack(int);
-   
-   // Copy constructor
-   Stack(const Stack&);
-   
-   // Destructor
-   ~Stack();
-   
-   // Stack operations
-   void push(T);
-   void pop(T &);
-   bool isFull();
-   bool isEmpty();
-};
-   
-//***************************************************
-//  Constructor                                     *
-//***************************************************
-
-template <class T>
-Stack<T>::Stack(int size)
-{
-   stackArray = new T[size];
-   stackSize = size;
-   top = -1;
-}
-
-//***************************************************
-//  Copy constructor                                *
-//***************************************************
-
-template <class T>
-Stack<T>::Stack(const Stack &obj)
-{
-   // Create the stack array.
-   if (obj.stackSize > 0)
-      stackArray = new T[obj.stackSize];
-   else
-      stackArray = nullptr;
-      
-   // Copy the stackSize attribute.
-   stackSize = obj.stackSize;
-   
-   // Copy the stack contents.
-   for (int count = 0; count < stackSize; count++)
-      stackArray[count] = obj.stackArray[count];
-      
-   // Set the top of the stack.
-   top = obj.top;
-}
-
-//***************************************************
-//  Destructor                                      *
-//***************************************************
-
-template <class T>
-Stack<T>::~Stack()
-{
-   if (stackSize > 0)
-      delete [] stackArray;
-}
-
-//*************************************************************
-// Member function push pushes the argument onto              *
-// the stack.                                                 *
-//*************************************************************
-
-template <class T>
-void Stack<T>::push(T item)
-{
-   if (isFull())
-   {
-      cout << "The stack is full.\n";
-   }
-   else
-   {
-      top++;
-      stackArray[top] = item;
-   }
-}
- 
-//*************************************************************
-// Member function pop pops the value at the top              *
-// of the stack off, and copies it into the variable          *
-// passed as an argument.                                     *
-//*************************************************************
-
-template <class T>
-void Stack<T>::pop(T &item)
-{
-   if (!isEmpty())
-   {
-      item = stackArray[top];
-      top--;
-   }
-}
-
-//*************************************************************
-// Member function isFull returns true if the stack           *
-// is full, or false otherwise.                               *
-//*************************************************************
-
-template <class T>
-bool Stack<T>::isFull()
-{
-   bool status;
-   
-   if (top == stackSize - 1)
-      status = true;
-   else
-      status = false;
-   
-   return status;
-}
-
-//*************************************************************
-// Member function isEmpty returns true if the stack          *
-// is empty, or false otherwise.                              *
-//*************************************************************
-
-template <class T>
-bool Stack<T>::isEmpty()
-{
-   bool status;
-   
-   if (top == -1)
-      status = true;
-   else
-      status = false;
-   
-   return status;
-}
-
-
 int main()
-
 {
-
-    string str, ch;
-
-    ifstream inputFile("test_stack.txt");
-
-    if(inputFile.fail())
+    string str;
+    ifstream f("test_stack.txt");
+    if (f.fail())
     {
-        cout << "error opening" << endl;
+        cout << "Invalid file. " << endl;
+        exit(-1);
     }
-    else
+    while (f >> str)
     {
-        while(inputFile >> str)
+        //extract the remain space
+        string pd;
+        getline(f, pd);
+
+        //change the number of the seequence from string to integer
+        int size = stoi(str);
+
+        //create the stack with the size
+        stack<char> iStack;
+
+        for (int i = 0; i < size; i++)
         {
-            
-            //to extract the remain newline charactor
-            string pd;
-            getline(inputFile, pd);
-            
-            int size = stoi(str);
-            Stack<char> stackarr(size);
-            for(int i = 0; i < size; i++ )
+            getline(f, pd);
+            //pickup - labeled with a 1, push into stack 
+            if (pd[0] == '1')
             {
-                
-                string pd;
-                getline(inputFile, pd);
-                if( pd[0] == '1')
+                iStack.push(pd[2]);
+
+            }
+            // only pop off when the item is on top of the stack equals to the item that need to dropoff
+            else if (pd[0] == '2')
+            {
+                if (iStack.top() == pd[2])
                 {
-                    stackarr.push(pd[2]);
+                    iStack.pop();
                 }
-                else if( pd[0] == '2')
+
+
+            }
+            //if the series  is valid the stack should be empty when the for loop end
+            if (i == size - 1)
+            {
+                if (iStack.empty())
                 {
-                    char s;
-                    stackarr.pop(s);
-                    if(pd[2] != s)
-                    {
-                        stackarr.push(s);
-                    }
+                    cout << "valid" << endl;
                 }
-                if(i == size - 1)
+                else
                 {
-                    if(stackarr.isEmpty())
-                    {
-                        cout << "valid" << endl;
-                    }
-                    else
-                    {
-                        cout << "not valid" << endl;
-                    }
+                    cout << "not valid" << endl;
                 }
             }
         }
     }
-    inputFile.close();
-        return 0;
+    f.close();
+
+
+    return 0;
 }
